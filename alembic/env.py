@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import create_database_url
+from app.modules.users.model import User  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", create_database_url(settings))
