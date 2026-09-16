@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run python -m ruff check .
+      - run: uv run python -m ruff format --check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run python -m mypy app
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - name: Run tests
+        shell: bash
+        run: |
+          uv run python -m pytest tests/ -q
+          rc=$?
+          # exit code 5 (no tests) допустим до Этапа 2, убрать после появления первого теста.
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 5 ]; then exit "$rc"; fi
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create CI environment
+        run: |
+          cat > .env <<'EOF'
+          POSTGRES_PASSWORD=ci
+          JWT_SECRET_KEY=ci-long-secret-at-least-32-chars
+          EOF
+      - name: Validate Compose configuration
+        run: docker compose config
+      - name: Build image
+        run: docker build -t felagi-crm-api .
+      - name: Start services
+        run: docker compose up -d --build
+      - name: Smoke test health endpoint
+        shell: bash
+        run: |
+          set -e
+          for attempt in $(seq 1 30); do
+            if response=$(curl -fsS http://localhost:8000/api/v1/health); then
+              printf '%s\n' "$response"
+              printf '%s\n' "$response" | grep -F '"status":"ok"'
+              exit 0
+            fi
+            sleep 1
+          done
+          docker compose logs api
+          exit 1
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
