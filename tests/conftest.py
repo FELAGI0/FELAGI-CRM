@@ -11,7 +11,11 @@ from testcontainers.community.postgres import PostgresContainer
 
 from app.core.config import Settings
 from app.core.rate_limit import limiter
+from app.core.security import hash_password
 from app.factory import create_app
+from app.modules.users.model import User
+
+_PASSWORD = "StrongPassword123"
 
 
 @pytest.fixture(scope="session")
@@ -23,8 +27,7 @@ def postgres_container() -> Iterator[PostgresContainer]:
 @pytest.fixture(scope="session")
 def test_settings(postgres_container: PostgresContainer) -> Settings:
     database_url = postgres_container.get_connection_url().replace(
-        "postgresql+psycopg2",
-        "postgresql+asyncpg",
+        "postgresql+psycopg2", "postgresql+asyncpg"
     )
     return Settings.model_validate(
         {
@@ -63,14 +66,41 @@ async def clean_users(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> AsyncIterator[None]:
     async with session_factory() as session:
-        await session.execute(text("TRUNCATE users"))
+        await session.execute(text("TRUNCATE tasks, deals, clients, users CASCADE"))
         await session.commit()
     limiter.reset()
     yield
     async with session_factory() as session:
-        await session.execute(text("TRUNCATE users"))
+        await session.execute(text("TRUNCATE tasks, deals, clients, users CASCADE"))
         await session.commit()
     limiter.reset()
+
+
+@pytest.fixture
+async def seed_users(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    async with session_factory() as session:
+        session.add_all(
+            [
+                User(
+                    email="admin@example.com",
+                    hashed_password=hash_password(_PASSWORD),
+                    role="admin",
+                ),
+                User(
+                    email="manager@example.com",
+                    hashed_password=hash_password(_PASSWORD),
+                    role="manager",
+                ),
+                User(
+                    email="user@example.com",
+                    hashed_password=hash_password(_PASSWORD),
+                    role="user",
+                ),
+            ]
+        )
+        await session.commit()
 
 
 @pytest.fixture
@@ -89,3 +119,11 @@ async def client(app) -> AsyncIterator[httpx.AsyncClient]:
         base_url="http://testserver",
     ) as test_client:
         yield test_client
+
+
+async def auth_headers(client: httpx.AsyncClient, email: str) -> dict[str, str]:
+    response = await client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": _PASSWORD},
+    )
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}

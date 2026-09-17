@@ -6,12 +6,16 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
-[![Tests](https://img.shields.io/badge/tests-24%20passed-success)](#-testing)
-[![Coverage](https://img.shields.io/badge/coverage-82%25-success)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-141%20passed-success)](#-testing)
+[![Coverage](https://img.shields.io/badge/coverage-81%25-success)](#-testing)
 
 ## ✨ Features
 
+- **CRM domain** — clients, deals, and tasks with relationships and lifecycle rules.
 - **Async REST API** — FastAPI with SQLAlchemy 2.0 async sessions and PostgreSQL 16.
+- **Pagination** — all list endpoints support `limit`/`offset` and return generic `Page[T]` responses.
+- **Filtering** — deals by `status`/`client_id`; tasks by `status`/`assigned_to`/`deal_id`.
+- **Role-based access control** — admin, manager, and user permissions across CRM resources.
 - **Health checks** — `GET /api/v1/health` verifies database connectivity.
 - **User authentication** — registration, login, refresh, and current-user endpoints.
 - **JWT token pairs** — signed access and refresh tokens with explicit `token_type` claims.
@@ -105,8 +109,7 @@ app/
 │   └── v1/                 # API v1 router and health endpoint
 ├── core/                   # Settings, JWT, logging, middleware, rate limits
 ├── db/                     # Declarative Base, async engine, session dependency
-├── modules/
-│   └── users/              # User model, schemas, service, auth/users routers
+├── modules/                # users, clients, deals, and tasks domains
 ├── factory.py              # FastAPI app factory and middleware registration
 └── main.py                 # ASGI entry point
 
@@ -195,6 +198,38 @@ tests/
 | --- | --- | --- | --- |
 | `GET` | `/api/v1/users/me` | Get the current user | Bearer access token |
 
+### Clients
+
+| Method | Endpoint | Description | Authentication |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/clients` | Create a client | Admin, manager |
+| `GET` | `/api/v1/clients` | List clients (paginated) | All authenticated |
+| `GET` | `/api/v1/clients/{id}` | Get a client | All authenticated |
+| `PATCH` | `/api/v1/clients/{id}` | Update a client | Admin, manager |
+| `DELETE` | `/api/v1/clients/{id}` | Delete a client; `409` if it has deals | Admin, manager |
+
+### Deals
+
+| Method | Endpoint | Description | Authentication |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/deals` | Create a deal | Admin, manager |
+| `GET` | `/api/v1/deals?status=&client_id=` | List/filter deals (paginated) | All authenticated |
+| `GET` | `/api/v1/deals/{id}` | Get a deal | All authenticated |
+| `PATCH` | `/api/v1/deals/{id}` | Update a deal | Admin, manager |
+| `DELETE` | `/api/v1/deals/{id}` | Delete a deal; cascades tasks | Admin, manager |
+
+### Tasks
+
+| Method | Endpoint | Description | Authentication |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/tasks` | Create a task; users can only self-assign | All authenticated |
+| `GET` | `/api/v1/tasks?status=&assigned_to=&deal_id=` | List/filter tasks (paginated) | All authenticated |
+| `GET` | `/api/v1/tasks/{id}` | Get a task | All authenticated |
+| `PATCH` | `/api/v1/tasks/{id}` | Update a task | Admin/manager or assignee-user |
+| `DELETE` | `/api/v1/tasks/{id}` | Delete a task | Admin/manager or assignee-user |
+
+All list endpoints accept `limit` and `offset` and return `Page[T]`.
+
 ### Request and response examples
 
 Register:
@@ -253,11 +288,11 @@ Both token types are signed JWTs and include a `token_type` claim. Access tokens
 
 ### Roles
 
-| Role | Current state |
-| --- | --- |
-| `admin` | Stored on users; RBAC enforcement planned for Stage 3 |
-| `manager` | Stored on users; RBAC enforcement planned for Stage 3 |
-| `user` | Default role; RBAC enforcement planned for Stage 3 |
+| Role | Clients | Deals | Tasks |
+| --- | --- | --- | --- |
+| `admin` | Full CRUD | Full CRUD | Full CRUD |
+| `manager` | Full CRUD | Full CRUD | Full CRUD |
+| `user` | Read-only | Read-only | Create (self-assign), update/delete own |
 
 ## 🧪 Testing
 
@@ -268,9 +303,9 @@ uv run python -m pytest tests/ -q
 | Suite | Coverage |
 | --- | --- |
 | Unit | Argon2 hashing and JWT creation, expiry, tampering, and token-type validation |
-| Integration | Registration, login, refresh, `/users/me`, inactive users, duplicate emails, and rate limiting |
+| Integration | Registration, CRM CRUD, filtering, pagination, refresh, `/users/me`, inactive users, duplicate emails, rate limiting, and RBAC matrix |
 
-Integration tests use `Testcontainers` to run real PostgreSQL 16 and `httpx.AsyncClient` to exercise the ASGI application. The current suite has **24 passing tests** and **82% coverage** through `pytest-cov`.
+Integration tests use `Testcontainers` to run real PostgreSQL 16 and `httpx.AsyncClient` to exercise the ASGI application. The current suite has **141 passing tests** and **81% coverage** through `pytest-cov`. RBAC matrix tests cover admin, manager, and user permissions.
 
 Additional quality checks:
 
@@ -310,14 +345,34 @@ Integration tests exercise PostgreSQL constraints, Alembic migrations, async SQL
 
 Explicit `access` and `refresh` token types prevent accidental token substitution: refresh credentials are rejected by protected endpoints, while access tokens are rejected by `/auth/refresh`.
 
+### ON DELETE strategies
+
+Foreign keys use explicit deletion behavior: `RESTRICT` protects deals from deleting their client and preserves user creator history; `CASCADE` removes tasks when their parent deal is deleted; `SET NULL` keeps tasks when an assignee user is removed while clearing only the assignment.
+
+### Decimal + `NUMERIC(12,2)` for amount
+
+Deal amounts use Python `Decimal` and PostgreSQL `NUMERIC(12,2)`. Money does not tolerate binary floating-point rounding errors.
+
+### Flat URLs
+
+Tasks use the canonical `/tasks` route instead of nested `/deals/{id}/tasks`; callers filter by `deal_id` when needed, avoiding duplicate route semantics.
+
+### Flat reads
+
+Responses return foreign-key IDs rather than nested objects. This keeps payloads predictable and avoids accidental N+1 relationship loading.
+
+### Broad RBAC in routers + object-level checks in services
+
+Router dependencies enforce broad role permissions for Clients and Deals. Task ownership and self-assignment rules stay in the service layer, where the persisted object and current user are both available.
+
 ## 🗺️ Roadmap
 
-- ✅ **Stage 1:** Project skeleton, Docker, database health checks, quality tooling
-- ✅ **Stage 2:** Users, JWT authentication, rate limiting, and tests
-- ⬜ **Stage 3:** Clients, deals, tasks, and role-based access control
-- ⬜ **Stage 4:** Search, filtering, pagination, and business workflows
-- ⬜ **Stage 5:** Frontend application and API integration
-- ⬜ **Stage 6:** Deployment, observability, screenshots, and portfolio polish
+- [x] **Stage 1 — Skeleton**
+- [x] **Stage 2 — Users / Auth**
+- [x] **Stage 3 — CRM Domain (clients, deals, tasks, RBAC)**
+- [ ] **Stage 4 — Frontend**
+- [ ] **Stage 5 — Deploy**
+- [ ] **Stage 6 — Polish**
 
 ## 🌍 Environment Variables
 

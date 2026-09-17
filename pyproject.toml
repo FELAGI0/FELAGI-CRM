@@ -52,6 +52,7 @@ extend-immutable-calls = [
     "fastapi.Body",
     "fastapi.Header",
     "fastapi.Cookie",
+    "app.api.dependencies.permissions.require_role",
 ]
 
 [tool.ruff.format]

@@ -1,10 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import CheckConstraint, DateTime, String, Uuid, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.modules.tasks.model import Task
 
 
 class User(Base):
@@ -30,4 +34,15 @@ class User(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+    )
+
+    assigned_tasks: Mapped[list["Task"]] = relationship(
+        foreign_keys="[Task.assigned_to]",
+        back_populates="assignee",
+        lazy="raise",
+    )
+    created_tasks: Mapped[list["Task"]] = relationship(
+        foreign_keys="[Task.created_by]",
+        back_populates="creator",
+        lazy="raise",
     )

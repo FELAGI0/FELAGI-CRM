@@ -8,6 +8,9 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import create_database_url
+from app.modules.clients.model import Client  # noqa: F401
+from app.modules.deals.model import Deal  # noqa: F401
+from app.modules.tasks.model import Task  # noqa: F401
 from app.modules.users.model import User  # noqa: F401
 
 config = context.config
