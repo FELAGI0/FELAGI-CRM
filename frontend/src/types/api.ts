@@ -1,0 +1,71 @@
+export type Role = 'admin' | 'manager' | 'user'
+export type DealStatus = 'new' | 'in_progress' | 'won' | 'lost'
+export type TaskStatus = 'todo' | 'in_progress' | 'done'
+
+export interface User {
+  id: string
+  email: string
+  role: Role
+  is_active: boolean
+  created_at: string
+}
+
+export interface Client {
+  id: string
+  name: string
+  email: string | null
+  phone: string | null
+  company: string | null
+  notes: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Deal {
+  id: string
+  title: string
+  amount: number
+  status: DealStatus
+  client_id: string
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Task {
+  id: string
+  title: string
+  description: string | null
+  status: TaskStatus
+  due_date: string | null
+  deal_id: string | null
+  assigned_to: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Page<T> {
+  items: T[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export interface TokenPair {
+  access_token: string
+  refresh_token: string
+  token_type: 'bearer'
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export type RegisterRequest = LoginRequest
+
+export interface RefreshRequest {
+  refresh_token: string
+}

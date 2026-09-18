@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f9fafb;
+  --color-border: #e5e9f0;
+  --color-text-primary: #1a2332;
+  --color-text-secondary: #7b8595;
+  --color-accent: #4a7bf7;
+  --color-accent-hover: #3a6ae7;
+  --color-accent-subtle: #ebf1fe;
+  --color-status-new: #5b8def;
+  --color-status-in-progress: #ff9f43;
+  --color-status-won: #4cd97b;
+  --color-status-lost: #ff5c5c;
+  --color-status-todo: #5b8def;
+  --color-status-done: #4cd97b;
+  --radius-card: 16px;
+  --radius-auth-card: 24px;
+  --radius-control: 12px;
+  --radius-badge: 9999px;
+}
+
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #0d0d0d;
+  --color-surface: #1a1a1a;
+  --color-surface-hover: #242424;
+  --color-border: #2a2a2a;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9ca3af;
+  --color-accent: #ffffff;
+  --color-accent-hover: #e5e5e5;
+  --color-accent-subtle: #242424;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-background: #0d0d0d;
+    --color-surface: #1a1a1a;
+    --color-surface-hover: #242424;
+    --color-border: #2a2a2a;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #9ca3af;
+    --color-accent: #ffffff;
+    --color-accent-hover: #e5e5e5;
+    --color-accent-subtle: #242424;
+  }
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  font: inherit;
+}
