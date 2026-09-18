@@ -3,7 +3,9 @@ import type { TooltipContentProps } from 'recharts'
 
 import type { DealsChartPoint } from './dashboard.queries'
 
-const ACCENT = '#4A7BF7'
+// Follows the theme token rather than a fixed hex, so the bars stay legible in
+// dark mode (where --color-accent resolves to #ffffff).
+const ACCENT = 'var(--color-accent)'
 
 type ChartTooltipProps = Partial<TooltipContentProps<number, string>>
 

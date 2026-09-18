@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import type { DealStatus, TaskStatus } from '@/types/api'
 
 import { StatusBadge } from '@/components/common/status-badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 export type ActivityItem = {
@@ -19,10 +20,10 @@ const ListSkeleton = () => (
   <ul className="space-y-3" role="status" aria-label="Loading recent activity">
     {[0, 1, 2, 3, 4].map((row) => (
       <li key={row} className="flex items-center gap-3">
-        <div className="size-8 shrink-0 animate-pulse rounded-control bg-surface-hover" />
+        <Skeleton className="size-8 shrink-0" />
         <div className="min-w-0 flex-1 space-y-1.5">
-          <div className="h-3.5 w-3/4 animate-pulse rounded bg-surface-hover" />
-          <div className="h-3 w-1/2 animate-pulse rounded bg-surface-hover" />
+          <Skeleton className="h-3.5 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
         </div>
       </li>
     ))}
@@ -80,7 +81,9 @@ const ActivitySection = ({
   count?: number
   children: ReactNode
 }) => (
-  <section className="rounded-card border border-border bg-surface p-5 transition-shadow hover:shadow-sm">
+  /* min-w-0: grid items default to min-width:auto, and the nowrap/truncate text
+     inside would otherwise push the track past the viewport on narrow screens. */
+  <section className="min-w-0 rounded-card border border-border bg-surface p-5 transition-shadow hover:shadow-sm">
     <header className="mb-4 flex items-center justify-between">
       <h2 className="font-semibold text-text-primary">{title}</h2>
       {typeof count === 'number' && count > 0 && <span className="text-xs text-text-secondary">{count} total</span>}
@@ -101,7 +104,7 @@ export const RecentActivity = ({ clients, deals, tasks }: RecentActivityProps) =
       <ActivityList
         items={clients.items}
         icon={Users}
-        iconClassName="bg-[#4A7BF7]/12 text-[#4A7BF7]"
+        iconClassName="bg-accent/10 text-accent"
         emptyLabel="No clients yet"
         isLoading={clients.isLoading}
       />
@@ -111,7 +114,7 @@ export const RecentActivity = ({ clients, deals, tasks }: RecentActivityProps) =
       <ActivityList
         items={deals.items}
         icon={BriefcaseBusiness}
-        iconClassName="bg-[#8B5CF6]/12 text-[#8B5CF6]"
+        iconClassName="bg-status-new/10 text-status-new"
         emptyLabel="No deals yet"
         isLoading={deals.isLoading}
       />
@@ -121,7 +124,7 @@ export const RecentActivity = ({ clients, deals, tasks }: RecentActivityProps) =
       <ActivityList
         items={tasks.items}
         icon={CheckSquare}
-        iconClassName="bg-[#FF9F43]/14 text-[#FF9F43]"
+        iconClassName="bg-status-in-progress/10 text-status-in-progress"
         emptyLabel="No tasks yet"
         isLoading={tasks.isLoading}
       />

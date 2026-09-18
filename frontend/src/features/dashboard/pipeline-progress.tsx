@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 export type PipelineProgressProps = {
@@ -18,17 +19,17 @@ export const PipelineProgress = ({ won, lost, newDeals, inProgress, isLoading = 
   if (isLoading) {
     return (
       <div role="status" aria-label="Loading pipeline" className="space-y-4">
-        <div className="h-3 animate-pulse rounded-full bg-surface-hover" />
-        <div className="h-20 animate-pulse rounded-control bg-surface-hover" />
+        <Skeleton className="h-3 rounded-full" />
+        <Skeleton className="h-20" />
       </div>
     )
   }
 
   const segments = [
-    { key: 'won', label: 'Won', value: won, className: 'bg-[#4CD97B]' },
-    { key: 'in_progress', label: 'In progress', value: inProgress, className: 'bg-[#FF9F43]' },
-    { key: 'new', label: 'New', value: newDeals, className: 'bg-[#5B8DEF]' },
-    { key: 'lost', label: 'Lost', value: lost, className: 'bg-[#FF5C5C]' },
+    { key: 'won', label: 'Won', value: won, className: 'bg-status-won' },
+    { key: 'in_progress', label: 'In progress', value: inProgress, className: 'bg-status-in-progress' },
+    { key: 'new', label: 'New', value: newDeals, className: 'bg-status-new' },
+    { key: 'lost', label: 'Lost', value: lost, className: 'bg-status-lost' },
   ]
 
   return (
@@ -47,7 +48,7 @@ export const PipelineProgress = ({ won, lost, newDeals, inProgress, isLoading = 
           aria-label="Win rate"
         >
           <div
-            className="h-full rounded-full bg-[#4CD97B] transition-all duration-500"
+            className="h-full rounded-full bg-status-won transition-all duration-500"
             style={{ width: `${winRate}%` }}
           />
         </div>
