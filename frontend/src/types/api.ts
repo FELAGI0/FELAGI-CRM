@@ -25,7 +25,8 @@ export interface Client {
 export interface Deal {
   id: string
   title: string
-  amount: number
+  /** Decimal(12,2) is serialized as a string by the API, e.g. "1234.56". */
+  amount: string | null
   status: DealStatus
   client_id: string
   created_by: string
