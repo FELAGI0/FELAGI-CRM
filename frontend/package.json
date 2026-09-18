@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "types:generate": "echo OpenAPI type generation deferred to Stage 6",
     "preview": "vite preview"
