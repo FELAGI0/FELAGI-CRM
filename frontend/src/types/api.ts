@@ -48,6 +48,20 @@ export interface Deal {
   updated_at: string
 }
 
+export interface DealCreate {
+  title: string
+  /** Sent as a string so Decimal precision survives the round trip. */
+  amount?: string | null
+  status?: DealStatus
+  client_id: string
+}
+
+/**
+ * The backend applies `exclude_none=True`, and an update must carry at least one
+ * field, so omitted keys are simply left out of the payload.
+ */
+export type DealUpdate = Partial<DealCreate>
+
 export interface Task {
   id: string
   title: string

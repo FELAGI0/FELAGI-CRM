@@ -23,3 +23,25 @@ export const formatRelative = (value: string | null | undefined, fallback = '—
 export const formatMonthShort = (date: Date): string => format(date, 'LLL yy', { locale: ru })
 
 export const formatNumber = (value: number): string => new Intl.NumberFormat('ru-RU').format(value)
+
+/**
+ * Money amount without a currency symbol, normalised to two decimals and a
+ * space thousands separator, e.g. "1234.5" -> "1 234.50".
+ *
+ * The API sends Decimal as a string; it is parsed here only for display and
+ * never converted back to a number, so no precision is lost on the way out.
+ * Returned unchanged when it is not a valid number.
+ */
+export const formatAmount = (value: string | null | undefined, fallback = '—'): string => {
+  if (value === null || value === undefined || value.trim() === '') return fallback
+  const trimmed = value.trim()
+  // Manual grouping rather than Intl so the separator is a plain space (Intl
+  // uses a non-breaking space for ru-RU, which breaks copy/paste and tests).
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(trimmed)
+  if (!match) return trimmed
+  const sign = match[1] ?? ''
+  const intPart = match[2] ?? ''
+  const fracPart = match[3] ?? ''
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  return `${sign}${grouped}.${fracPart.padEnd(2, '0').slice(0, 2)}`
+}

@@ -159,6 +159,7 @@ export const t = {
     passwordLower: 'Нужна строчная буква',
     passwordUpper: 'Нужна заглавная буква',
     passwordDigit: 'Нужна цифра',
+    amountFormat: 'Введите число (макс. 2 знака после запятой)',
   },
   notifications: {
     empty: 'Уведомлений нет',
@@ -196,9 +197,80 @@ export const t = {
     backToDashboard: 'Вернуться на дашборд',
   },
   deals: {
+    title: 'Сделки',
+    total: (n: number) => {
+      const mod10 = n % 10
+      const mod100 = n % 100
+      if (mod10 === 1 && mod100 !== 11) return `${n} сделка`
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} сделки`
+      return `${n} сделок`
+    },
+    totalLabel: (n: number) => {
+      const mod10 = n % 10
+      const mod100 = n % 100
+      if (mod10 === 1 && mod100 !== 11) return `${n} сделка всего`
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} сделки всего`
+      return `${n} сделок всего`
+    },
+    addDeal: 'Добавить сделку',
+    editDeal: 'Редактирование сделки',
+    createDeal: 'Новая сделка',
+    editSubtitle: 'Обновите данные сделки ниже.',
+    createSubtitle: 'Создайте новую сделку.',
+    columns: {
+      title: 'Название',
+      client: 'Клиент',
+      amount: 'Сумма',
+      status: 'Статус',
+      created: 'Создан',
+    },
+    form: {
+      title: 'Название',
+      titlePlaceholder: 'Внедрение CRM',
+      amount: 'Сумма',
+      amountPlaceholder: '0.00',
+      status: 'Статус',
+      client: 'Клиент',
+      selectClient: 'Выберите клиента',
+      selectStatus: 'Выберите статус',
+      saving: 'Сохранение…',
+      saveChanges: 'Сохранить',
+    },
     empty: {
       title: 'Пока нет сделок',
+      description: 'Начните с добавления первой сделки',
     },
+    /** Shown when filters are active but match nothing. */
+    noMatches: {
+      title: 'Ничего не найдено',
+      description: 'Попробуйте изменить или сбросить фильтры',
+    },
+    deleteConfirm: {
+      title: 'Удалить сделку?',
+      description: (name: string) =>
+        `Вы уверены, что хотите удалить «${name}»? Связанные задачи тоже будут удалены. Это действие нельзя отменить.`,
+      confirm: 'Удалить',
+      cancel: 'Отмена',
+    },
+    created: 'Сделка создана',
+    updated: 'Сделка обновлена',
+    deleted: 'Сделка удалена',
+    createFailed: 'Не удалось создать сделку',
+    updateFailed: 'Не удалось обновить сделку',
+    deleteFailed: 'Не удалось удалить сделку',
+    loadFailed: 'Не удалось загрузить сделки',
+    loadFailedHint: 'Не удалось загрузить список сделок. Проверьте, что API запущен, и попробуйте снова.',
+    deleting: 'Удаление…',
+    unknownClient: 'Клиент удалён',
+  },
+  filters: {
+    status: 'Статус',
+    client: 'Клиент',
+    all: 'Все',
+    allClients: 'Все клиенты',
+    resetFilters: 'Сбросить фильтры',
+    filterByStatus: 'Фильтр по статусу',
+    filterByClient: 'Фильтр по клиенту',
   },
   tasks: {
     empty: {

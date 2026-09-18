@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { loginSchema, registerSchema } from '@/features/auth/auth.schemas'
 import { clientFormSchema, emptyClientForm } from '@/features/clients/clients.schemas'
 import { getErrorMessage, resolveBackendMessage } from '@/lib/error-message'
-import { formatDate, formatRelative } from '@/lib/format'
+import { formatAmount, formatDate, formatRelative } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import { ApiError } from '@/lib/api-errors'
 
@@ -49,11 +49,27 @@ describe('dictionary', () => {
   })
 
   test('pluralises deals with correct endings', () => {
-    expect(t.dashboard.dealsCount(1)).toBe('1 сделка')
-    expect(t.dashboard.dealsCount(3)).toBe('3 сделки')
-    expect(t.dashboard.dealsCount(5)).toBe('5 сделок')
-    expect(t.dashboard.dealsCount(11)).toBe('11 сделок')
-    expect(t.dashboard.dealsCount(22)).toBe('22 сделки')
+    expect(t.deals.total(1)).toBe('1 сделка')
+    expect(t.deals.total(3)).toBe('3 сделки')
+    expect(t.deals.total(5)).toBe('5 сделок')
+    expect(t.deals.total(11)).toBe('11 сделок')
+    expect(t.deals.total(21)).toBe('21 сделка')
+    expect(t.deals.total(22)).toBe('22 сделки')
+    expect(t.deals.total(0)).toBe('0 сделок')
+    expect(t.deals.total(18)).toBe('18 сделок')
+  })
+
+  test('pluralises the deals total label', () => {
+    expect(t.deals.totalLabel(1)).toBe('1 сделка всего')
+    expect(t.deals.totalLabel(2)).toBe('2 сделки всего')
+    expect(t.deals.totalLabel(18)).toBe('18 сделок всего')
+  })
+
+  test('deal status labels are distinct', () => {
+    expect(t.status.deal.new).toBe('Новый')
+    expect(t.status.deal.in_progress).toBe('В работе')
+    expect(t.status.deal.won).toBe('Выиграно')
+    expect(t.status.deal.lost).toBe('Проиграно')
   })
 
   test('interpolates the welcome and delete confirmation strings', () => {
@@ -138,5 +154,39 @@ describe('date formatting', () => {
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
     expect(formatRelative(twoHoursAgo)).toMatch(/час/)
     expect(formatRelative(null)).toBe('—')
+  })
+})
+
+describe('amount formatting', () => {
+  test('groups thousands with a space and keeps two decimals', () => {
+    expect(formatAmount('1234.56')).toBe('1 234.56')
+    expect(formatAmount('1234567.89')).toBe('1 234 567.89')
+    expect(formatAmount('16937.50')).toBe('16 937.50')
+  })
+
+  test('pads a missing fraction to two places', () => {
+    expect(formatAmount('100')).toBe('100.00')
+    expect(formatAmount('1234.5')).toBe('1 234.50')
+    expect(formatAmount('0')).toBe('0.00')
+  })
+
+  test('leaves a small amount alone', () => {
+    expect(formatAmount('5.00')).toBe('5.00')
+  })
+
+  test('falls back when there is no amount', () => {
+    expect(formatAmount(null)).toBe('—')
+    expect(formatAmount(undefined)).toBe('—')
+    expect(formatAmount('')).toBe('—')
+    expect(formatAmount('   ')).toBe('—')
+  })
+
+  test('never rounds a large decimal through a float', () => {
+    // Parsing this into a JS number would lose the trailing digits.
+    expect(formatAmount('999999999999.99')).toBe('999 999 999 999.99')
+  })
+
+  test('returns unparseable input unchanged rather than inventing a value', () => {
+    expect(formatAmount('abc')).toBe('abc')
   })
 })

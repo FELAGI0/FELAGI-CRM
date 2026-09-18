@@ -11,13 +11,13 @@ export type PaginationParams = {
   offset: number
 }
 
-const parsePositiveInt = (value: string | null, fallback: number): number => {
+export const parsePositiveInt = (value: string | null, fallback: number): number => {
   if (value === null) return fallback
   const parsed = Number.parseInt(value, 10)
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
-const parseNonNegativeInt = (value: string | null, fallback: number): number => {
+export const parseNonNegativeInt = (value: string | null, fallback: number): number => {
   if (value === null) return fallback
   const parsed = Number.parseInt(value, 10)
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
