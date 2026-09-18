@@ -28,9 +28,12 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { getErrorMessage } from '@/lib/error-message'
-import { formatAmount, formatDate } from '@/lib/format'
+import { formatAmountWithCurrency } from '@/lib/currency'
+import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import type { Client, Deal } from '@/types/api'
+
+import { useSettingsStore } from '@/features/settings/settings.store'
 
 import { DealDialog } from './deal-dialog'
 import { useDeleteDeal } from './deals.queries'
@@ -119,6 +122,7 @@ export const DealsTable = ({
   const [dealToDelete, setDealToDelete] = useState<Deal | null>(null)
   const [dealToEdit, setDealToEdit] = useState<Deal | null>(null)
   const deleteMutation = useDeleteDeal()
+  const currency = useSettingsStore((state) => state.currency)
 
   const clientNames = new Map(clients.map((client) => [client.id, client.name]))
 
@@ -171,7 +175,7 @@ export const DealsTable = ({
                 {clientNames.get(deal.client_id) ?? t.deals.unknownClient}
               </TableCell>
               <TableCell className="tabular-nums text-text-secondary">
-                {formatAmount(deal.amount)}
+                {formatAmountWithCurrency(deal.amount, currency)}
               </TableCell>
               <TableCell>
                 <StatusBadge status={deal.status} kind="deal" />

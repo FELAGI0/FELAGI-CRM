@@ -191,6 +191,12 @@ export const t = {
     notSignedIn: 'Не авторизован',
     comingSoon: 'Скоро',
     logout: 'Выйти',
+    currency: 'Валюта',
+    currencyRUB: '₽ Рубль',
+    currencyUSD: '$ Доллар',
+    currencyEUR: '€ Евро',
+    currencyHint: 'Используется для отображения сумм в сделках.',
+    selectCurrency: 'Выберите валюту',
   },
   notFound: {
     title: 'Страница не найдена',
