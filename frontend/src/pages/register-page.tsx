@@ -8,13 +8,12 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { ApiError } from '@/lib/api-errors'
-import { getErrorMessage } from '@/lib/error-message'
+import { getErrorMessage, resolveBackendMessage } from '@/lib/error-message'
+import { t } from '@/lib/i18n'
 
 import { registerSchema, type RegisterFormValues } from '@/features/auth/auth.schemas'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { authButtonClassName, authInputClassName } from '@/features/auth/auth-styles'
-
-const PASSWORD_HINT = '12–128 characters, with lowercase, uppercase and a digit'
 
 const visibleFields = ['email', 'password'] as const
 
@@ -37,8 +36,9 @@ export const RegisterPage = () => {
       navigate('/dashboard', { replace: true })
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        setError('email', { type: 'server', message: error.detail })
-        toast.error('Email already registered')
+        const message = resolveBackendMessage(error.detail)
+        setError('email', { type: 'server', message })
+        toast.error(message)
         return
       }
 
@@ -47,31 +47,31 @@ export const RegisterPage = () => {
         for (const field of visibleFields) {
           const message = error.fieldErrors[field]
           if (!message) continue
-          setError(field, { type: 'server', message })
+          setError(field, { type: 'server', message: resolveBackendMessage(message) })
           applied = true
         }
         if (applied) {
-          toast.error('Please fix the highlighted fields')
+          toast.error(t.auth.fixHighlightedFields)
           return
         }
       }
 
-      toast.error(getErrorMessage(error, 'Unable to create an account'))
+      toast.error(getErrorMessage(error, t.auth.unableToRegister))
     }
   })
 
   return (
     <div className="space-y-6">
       <header className="space-y-1.5">
-        <h1 className="text-2xl font-semibold text-white">Create account</h1>
-        <p className="text-sm text-white/50">Start managing your pipeline in FELAGI CRM</p>
+        <h1 className="text-2xl font-semibold text-white">{t.auth.signUpTitle}</h1>
+        <p className="text-sm text-white/50">{t.auth.signUpSubtitle}</p>
       </header>
 
       <form onSubmit={onSubmit} noValidate>
         <FieldGroup>
           <Field data-invalid={Boolean(errors.email)}>
             <FieldLabel htmlFor="email" className="text-white/80">
-              Email
+              {t.auth.email}
             </FieldLabel>
             <Input
               id="email"
@@ -87,7 +87,7 @@ export const RegisterPage = () => {
 
           <Field data-invalid={Boolean(errors.password)}>
             <FieldLabel htmlFor="password" className="text-white/80">
-              Password
+              {t.auth.password}
             </FieldLabel>
             <Input
               id="password"
@@ -99,20 +99,20 @@ export const RegisterPage = () => {
               {...register('password')}
             />
             <FieldError errors={[errors.password]} className="text-red-400" />
-            <p className="text-xs text-white/40">{PASSWORD_HINT}</p>
+            <p className="text-xs text-white/40">{t.auth.passwordHint}</p>
           </Field>
 
           <Button type="submit" size="lg" disabled={isSubmitting} className={authButtonClassName}>
             {isSubmitting && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
-            {isSubmitting ? 'Creating account…' : 'Sign up'}
+            {isSubmitting ? t.auth.signingUp : t.auth.signUp}
           </Button>
         </FieldGroup>
       </form>
 
       <p className="text-center text-sm text-white/50">
-        Already have an account?{' '}
+        {t.auth.haveAccount}{' '}
         <Link to="/login" className="font-medium text-white underline-offset-4 hover:underline">
-          Sign in
+          {t.auth.signIn}
         </Link>
       </p>
     </div>

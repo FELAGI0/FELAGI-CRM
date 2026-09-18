@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { getErrorMessage } from '@/lib/error-message'
 import { formatNumber, formatRelative } from '@/lib/format'
+import { t } from '@/lib/i18n'
 
 import {
   useDashboardMetrics,
@@ -47,7 +48,7 @@ export const DashboardPage = () => {
   const firstError = [chart.error, clients.error, deals.error, tasks.error].find(Boolean)
 
   useEffect(() => {
-    if (isError) toast.error(getErrorMessage(firstError, 'Failed to load dashboard data'))
+    if (isError) toast.error(getErrorMessage(firstError, t.dashboard.loadFailed))
   }, [isError, firstError])
 
   const clientItems: ActivityItem[] = (clients.data?.items ?? []).map((client) => ({
@@ -75,65 +76,65 @@ export const DashboardPage = () => {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-text-primary">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">{t.dashboard.title}</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Welcome back, {user?.email ?? 'there'}
+          {t.dashboard.welcome(user?.email ?? '—')}
         </p>
       </header>
 
       {isError && (
         <div
           role="alert"
-          className="rounded-card border border-[#FF5C5C]/30 bg-[#FF5C5C]/8 px-4 py-3 text-sm text-text-primary"
+          className="rounded-card border border-status-lost/30 bg-status-lost/8 px-4 py-3 text-sm text-text-primary"
         >
-          Some dashboard data could not be loaded. Check that the API is running and try again.
+          {t.dashboard.loadFailedHint}
         </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
-          label="Total Clients"
+          label={t.dashboard.totalClients}
           value={formatNumber(metrics.totalClients)}
           icon={Users}
           tone="blue"
           isLoading={metricsLoading}
         />
         <MetricCard
-          label="Total Deals"
+          label={t.dashboard.totalDeals}
           value={formatNumber(metrics.totalDeals)}
           icon={BriefcaseBusiness}
           tone="violet"
-          hint={`${metrics.activeDeals} active`}
+          hint={t.dashboard.active(metrics.activeDeals)}
           isLoading={metricsLoading}
         />
         <MetricCard
-          label="Active Tasks"
+          label={t.dashboard.activeTasks}
           value={formatNumber(metrics.activeTasks)}
           icon={CheckSquare}
           tone="amber"
-          hint={`${metrics.totalTasks} total`}
+          hint={t.dashboard.total(metrics.totalTasks)}
           isLoading={metricsLoading}
         />
         <MetricCard
-          label="Won Deals"
+          label={t.dashboard.wonDeals}
           value={formatNumber(metrics.wonDeals)}
           icon={TrendingUp}
           tone="green"
-          hint={`${metrics.winRate}% win rate`}
+          hint={t.dashboard.winRate(metrics.winRate)}
           isLoading={metricsLoading}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Section
-          title="Deals Timeline"
-          description="Deals created per month (last 6 months)"
+          title={t.dashboard.dealsTimeline}
+          description={t.dashboard.dealsTimelineSubtitle}
           className="lg:col-span-2"
         >
           <DealsChart data={chart.points} isLoading={chart.isLoading} />
         </Section>
 
-        <Section title="Pipeline" description="Deal distribution and win rate">
+        <Section title={t.dashboard.pipeline} description={t.dashboard.pipelineSubtitle}>
           <PipelineProgress
             won={metrics.wonDeals}
             lost={metrics.lostDeals}

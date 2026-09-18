@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
+import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export type MetricTone = 'blue' | 'violet' | 'amber' | 'green' | 'red'
@@ -57,7 +58,7 @@ export const MetricCard = ({
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-text-secondary">{label}</p>
           {isLoading ? (
-            <Skeleton className="mt-3 h-8 w-16" role="status" aria-label={`Loading ${label}`} />
+            <Skeleton className="mt-3 h-8 w-16" role="status" aria-label={`${t.common.loading} ${label}`} />
           ) : (
             <p className={cn('mt-2 text-3xl font-semibold tabular-nums tracking-tight', styles.value)}>{value}</p>
           )}

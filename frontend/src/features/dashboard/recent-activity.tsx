@@ -6,6 +6,7 @@ import type { DealStatus, TaskStatus } from '@/types/api'
 
 import { StatusBadge } from '@/components/common/status-badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export type ActivityItem = {
@@ -17,7 +18,7 @@ export type ActivityItem = {
 }
 
 const ListSkeleton = () => (
-  <ul className="space-y-3" role="status" aria-label="Loading recent activity">
+  <ul className="space-y-3" role="status" aria-label={t.common.loading}>
     {[0, 1, 2, 3, 4].map((row) => (
       <li key={row} className="flex items-center gap-3">
         <Skeleton className="size-8 shrink-0" />
@@ -86,7 +87,7 @@ const ActivitySection = ({
   <section className="min-w-0 rounded-card border border-border bg-surface p-5 transition-shadow hover:shadow-sm">
     <header className="mb-4 flex items-center justify-between">
       <h2 className="font-semibold text-text-primary">{title}</h2>
-      {typeof count === 'number' && count > 0 && <span className="text-xs text-text-secondary">{count} total</span>}
+      {typeof count === 'number' && count > 0 && <span className="text-xs text-text-secondary">{t.dashboard.total(count)}</span>}
     </header>
     {children}
   </section>
@@ -100,32 +101,32 @@ export type RecentActivityProps = {
 
 export const RecentActivity = ({ clients, deals, tasks }: RecentActivityProps) => (
   <div className="grid gap-6 lg:grid-cols-3">
-    <ActivitySection title="Recent Clients" count={clients.total}>
+    <ActivitySection title={t.dashboard.recentClients} count={clients.total}>
       <ActivityList
         items={clients.items}
         icon={Users}
         iconClassName="bg-accent/10 text-accent"
-        emptyLabel="No clients yet"
+        emptyLabel={t.clients.empty.title}
         isLoading={clients.isLoading}
       />
     </ActivitySection>
 
-    <ActivitySection title="Recent Deals" count={deals.total}>
+    <ActivitySection title={t.dashboard.recentDeals} count={deals.total}>
       <ActivityList
         items={deals.items}
         icon={BriefcaseBusiness}
         iconClassName="bg-status-new/10 text-status-new"
-        emptyLabel="No deals yet"
+        emptyLabel={t.deals.empty.title}
         isLoading={deals.isLoading}
       />
     </ActivitySection>
 
-    <ActivitySection title="Recent Tasks" count={tasks.total}>
+    <ActivitySection title={t.dashboard.recentTasks} count={tasks.total}>
       <ActivityList
         items={tasks.items}
         icon={CheckSquare}
         iconClassName="bg-status-in-progress/10 text-status-in-progress"
-        emptyLabel="No tasks yet"
+        emptyLabel={t.tasks.empty.title}
         isLoading={tasks.isLoading}
       />
     </ActivitySection>

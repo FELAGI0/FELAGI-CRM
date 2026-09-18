@@ -1,6 +1,7 @@
 import { useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query'
 
 import { apiClient } from '@/lib/api-client'
+import { formatMonthShort } from '@/lib/format'
 import type { Client, Deal, DealStatus, Page, Task, TaskStatus } from '@/types/api'
 
 /**
@@ -124,21 +125,26 @@ export const useRecentClients = () =>
 export type DealsChartPoint = {
   /** Month key, e.g. "2026-09". */
   month: string
-  /** Short axis label, e.g. "Sep 26". */
+  /** Localised short axis label, e.g. "сент. 26". */
   label: string
   count: number
 }
 
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const
-
 const monthKey = (date: Date): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 
-const monthLabel = (key: string): string => {
+/** Parses a "YYYY-MM" key back into the first day of that month. */
+const monthDateFromKey = (key: string): Date | null => {
   const [year, month] = key.split('-')
-  const index = Number(month) - 1
-  const name = MONTH_LABELS[index] ?? key
-  return `${name} ${year?.slice(2) ?? ''}`.trim()
+  const yearNumber = Number(year)
+  const monthNumber = Number(month)
+  if (!Number.isFinite(yearNumber) || !Number.isFinite(monthNumber)) return null
+  return new Date(yearNumber, monthNumber - 1, 1)
+}
+
+const monthLabel = (key: string): string => {
+  const date = monthDateFromKey(key)
+  return date ? formatMonthShort(date) : key
 }
 
 /**

@@ -1,19 +1,21 @@
 import { z } from 'zod'
 
+import { t } from '@/lib/i18n'
+
 export const loginSchema = z.object({
-  email: z.email('Enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.email(t.validation.email),
+  password: z.string().min(1, t.validation.passwordRequired),
 })
 
 export const registerSchema = z.object({
-  email: z.email('Enter a valid email address'),
+  email: z.email(t.validation.email),
   password: z
     .string()
-    .min(12, 'Password must be between 12 and 128 characters')
-    .max(128, 'Password must be between 12 and 128 characters')
-    .regex(/[a-z]/, 'Password must include a lowercase letter')
-    .regex(/[A-Z]/, 'Password must include an uppercase letter')
-    .regex(/\d/, 'Password must include a digit'),
+    .min(12, t.validation.passwordMin)
+    .max(128, t.validation.passwordMax)
+    .regex(/[a-z]/, t.validation.passwordLower)
+    .regex(/[A-Z]/, t.validation.passwordUpper)
+    .regex(/\d/, t.validation.passwordDigit),
 })
 
 export type LoginFormValues = z.infer<typeof loginSchema>

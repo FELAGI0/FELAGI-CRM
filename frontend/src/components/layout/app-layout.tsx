@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { PageTransition } from '@/components/common/page-transition'
+import { t } from '@/lib/i18n'
 import { useIsDesktopNav } from '@/lib/use-media-query'
 
 import { Header } from './header'
@@ -17,7 +18,7 @@ export const AppLayout = () => {
     setNavOpen(false)
     // The drawer unmounts on close, so hand focus back to the trigger.
     if (document.activeElement === document.body) {
-      document.querySelector<HTMLButtonElement>('button[aria-label="Open navigation"]')?.focus()
+      document.querySelector<HTMLButtonElement>(`button[aria-label="${t.header.openNavigation}"]`)?.focus()
     }
   }, [])
 

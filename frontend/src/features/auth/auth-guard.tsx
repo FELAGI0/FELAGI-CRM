@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
 import { LoadingScreen } from '@/components/loading-screen'
+import { t } from '@/lib/i18n'
 
 import { useAuthStore } from './auth.store'
 
@@ -16,7 +17,7 @@ export const AuthGuard = () => {
   }, [isAuthenticated, hasStoredTokens, restoreSession])
 
   if (isAuthenticated) return <Outlet />
-  if (hasStoredTokens || isRestoring) return <LoadingScreen label="Restoring session…" />
+  if (hasStoredTokens || isRestoring) return <LoadingScreen label={t.auth.restoringSession} />
   return <Navigate to="/login" replace />
 }
 

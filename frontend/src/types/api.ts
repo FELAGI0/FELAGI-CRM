@@ -22,6 +22,20 @@ export interface Client {
   updated_at: string
 }
 
+export interface ClientCreate {
+  name: string
+  email?: string | null
+  phone?: string | null
+  company?: string | null
+  notes?: string | null
+}
+
+/**
+ * The backend applies `exclude_none=True` to updates, so a `null` field is
+ * dropped rather than sent. Empty strings are the way to clear a value.
+ */
+export type ClientUpdate = Partial<ClientCreate>
+
 export interface Deal {
   id: string
   title: string

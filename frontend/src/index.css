@@ -11,6 +11,9 @@
   --color-accent: #4a7bf7;
   --color-accent-hover: #3a6ae7;
   --color-accent-subtle: #ebf1fe;
+  /* Text/icon colour that stays legible on top of --color-accent. In dark mode
+     the accent is white, so the foreground has to flip to a dark value. */
+  --color-accent-foreground: #ffffff;
   --color-status-new: #5b8def;
   --color-status-in-progress: #ff9f43;
   --color-status-won: #4cd97b;
@@ -39,6 +42,7 @@
   --color-accent: #ffffff;
   --color-accent-hover: #e5e5e5;
   --color-accent-subtle: #242424;
+  --color-accent-foreground: #0d0d0d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,6 +57,7 @@
     --color-accent: #ffffff;
     --color-accent-hover: #e5e5e5;
     --color-accent-subtle: #242424;
+    --color-accent-foreground: #0d0d0d;
   }
 }
 

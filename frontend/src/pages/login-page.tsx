@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { getErrorMessage } from '@/lib/error-message'
+import { t } from '@/lib/i18n'
 
 import { loginSchema, type LoginFormValues } from '@/features/auth/auth.schemas'
 import { useAuthStore } from '@/features/auth/auth.store'
@@ -30,22 +31,22 @@ export const LoginPage = () => {
       await login(values.email, values.password)
       navigate('/dashboard', { replace: true })
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to sign in'))
+      toast.error(getErrorMessage(error, t.auth.unableToSignIn))
     }
   })
 
   return (
     <div className="space-y-6">
       <header className="space-y-1.5">
-        <h1 className="text-2xl font-semibold text-white">Sign in</h1>
-        <p className="text-sm text-white/50">Welcome back to FELAGI CRM</p>
+        <h1 className="text-2xl font-semibold text-white">{t.auth.signInTitle}</h1>
+        <p className="text-sm text-white/50">{t.auth.signInSubtitle}</p>
       </header>
 
       <form onSubmit={onSubmit} noValidate>
         <FieldGroup>
           <Field data-invalid={Boolean(errors.email)}>
             <FieldLabel htmlFor="email" className="text-white/80">
-              Email
+              {t.auth.email}
             </FieldLabel>
             <Input
               id="email"
@@ -61,7 +62,7 @@ export const LoginPage = () => {
 
           <Field data-invalid={Boolean(errors.password)}>
             <FieldLabel htmlFor="password" className="text-white/80">
-              Password
+              {t.auth.password}
             </FieldLabel>
             <Input
               id="password"
@@ -77,15 +78,15 @@ export const LoginPage = () => {
 
           <Button type="submit" size="lg" disabled={isSubmitting} className={authButtonClassName}>
             {isSubmitting && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
-            {isSubmitting ? 'Signing in…' : 'Sign in'}
+            {isSubmitting ? t.auth.signingIn : t.auth.signIn}
           </Button>
         </FieldGroup>
       </form>
 
       <p className="text-center text-sm text-white/50">
-        Don&apos;t have an account?{' '}
+        {t.auth.noAccount}{' '}
         <Link to="/register" className="font-medium text-white underline-offset-4 hover:underline">
-          Sign up
+          {t.auth.signUp}
         </Link>
       </p>
     </div>

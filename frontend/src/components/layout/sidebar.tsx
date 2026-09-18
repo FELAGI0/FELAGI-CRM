@@ -1,22 +1,23 @@
-import { BriefcaseBusiness, CheckSquare, LayoutDashboard, Settings, Users, X } from 'lucide-react'
+﻿import { BriefcaseBusiness, CheckSquare, LayoutDashboard, Settings, Users, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '@/lib/utils'
+import { t } from '@/lib/i18n'
 
 const links = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/clients', label: 'Clients', icon: Users },
-  { to: '/deals', label: 'Deals', icon: BriefcaseBusiness },
-  { to: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
+  { to: '/clients', label: t.nav.clients, icon: Users },
+  { to: '/deals', label: t.nav.deals, icon: BriefcaseBusiness },
+  { to: '/tasks', label: t.nav.tasks, icon: CheckSquare },
+  { to: '/settings', label: t.nav.settings, icon: Settings },
 ]
 
 const Brand = () => <div className="mb-8 text-lg font-semibold text-text-primary">FELAGI CRM</div>
 
 const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
-  <nav className="space-y-1" aria-label="Main navigation">
+  <nav className="space-y-1" aria-label={t.nav.mainNavigation}>
     {links.map(({ to, label, icon: Icon }) => (
       <NavLink
         key={to}
@@ -26,7 +27,7 @@ const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
           cn(
             'flex items-center gap-3 rounded-control px-3 py-2 text-sm',
             isActive
-              ? 'bg-accent text-white'
+              ? 'bg-accent text-accent-foreground'
               : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
           )
         }
@@ -127,7 +128,7 @@ export const SidebarDrawer = ({ open, onClose }: SidebarDrawerProps) => {
         id="mobile-nav"
         role="dialog"
         aria-modal="true"
-        aria-label="Main navigation"
+        aria-label={t.nav.mainNavigation}
         tabIndex={-1}
         className="absolute inset-y-0 left-0 flex w-60 max-w-[85vw] flex-col border-r border-border bg-surface p-4 outline-none"
         initial={{ x: '-100%' }}
@@ -140,7 +141,7 @@ export const SidebarDrawer = ({ open, onClose }: SidebarDrawerProps) => {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close navigation"
+            aria-label={t.header.closeNavigation}
             className="rounded-control p-1.5 text-text-secondary hover:bg-surface-hover hover:text-text-primary"
           >
             <X size={18} />

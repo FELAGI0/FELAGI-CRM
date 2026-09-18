@@ -194,7 +194,7 @@ describe('buildDealsByMonth', () => {
       '2026-09',
     ])
     expect(points.every((point) => point.count === 0)).toBe(true)
-    expect(points.at(-1)?.label).toBe('Sep 26')
+    expect(points.at(-1)?.label).toBe('сент. 26')
   })
 
   // Buckets are computed in the viewer's local time, so the fixtures stay away

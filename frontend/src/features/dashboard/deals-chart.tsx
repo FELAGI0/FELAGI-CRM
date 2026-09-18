@@ -2,6 +2,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import type { TooltipContentProps } from 'recharts'
 
 import type { DealsChartPoint } from './dashboard.queries'
+import { t } from '@/lib/i18n'
 
 // Follows the theme token rather than a fixed hex, so the bars stay legible in
 // dark mode (where --color-accent resolves to #ffffff).
@@ -18,7 +19,7 @@ const ChartTooltip = ({ active, payload, label }: ChartTooltipProps) => {
     <div className="rounded-control border border-border bg-surface px-3 py-2 shadow-lg">
       <p className="text-xs font-medium text-text-secondary">{label}</p>
       <p className="mt-1 text-sm font-semibold text-text-primary">
-        {point.count} {point.count === 1 ? 'deal' : 'deals'}
+        {t.dashboard.dealsCount(point.count)}
       </p>
     </div>
   )
@@ -27,7 +28,7 @@ const ChartTooltip = ({ active, payload, label }: ChartTooltipProps) => {
 export const DealsChart = ({ data, isLoading = false }: { data: DealsChartPoint[]; isLoading?: boolean }) => {
   if (isLoading) {
     return (
-      <div role="status" aria-label="Loading deals chart" className="h-64 animate-pulse rounded-control bg-surface-hover" />
+      <div role="status" aria-label={t.common.loading} className="h-64 animate-pulse rounded-control bg-surface-hover" />
     )
   }
 
@@ -35,7 +36,7 @@ export const DealsChart = ({ data, isLoading = false }: { data: DealsChartPoint[
   if (!hasDeals) {
     return (
       <div className="flex h-64 items-center justify-center rounded-control border border-dashed border-border">
-        <p className="text-sm text-text-secondary">No deals in the last 6 months</p>
+        <p className="text-sm text-text-secondary">{t.dashboard.noDealsInPeriod}</p>
       </div>
     )
   }

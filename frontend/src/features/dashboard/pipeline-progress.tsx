@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
+import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 export type PipelineProgressProps = {
@@ -18,7 +19,7 @@ export const PipelineProgress = ({ won, lost, newDeals, inProgress, isLoading = 
 
   if (isLoading) {
     return (
-      <div role="status" aria-label="Loading pipeline" className="space-y-4">
+      <div role="status" aria-label={t.common.loading} className="space-y-4">
         <Skeleton className="h-3 rounded-full" />
         <Skeleton className="h-20" />
       </div>
@@ -26,17 +27,17 @@ export const PipelineProgress = ({ won, lost, newDeals, inProgress, isLoading = 
   }
 
   const segments = [
-    { key: 'won', label: 'Won', value: won, className: 'bg-status-won' },
-    { key: 'in_progress', label: 'In progress', value: inProgress, className: 'bg-status-in-progress' },
-    { key: 'new', label: 'New', value: newDeals, className: 'bg-status-new' },
-    { key: 'lost', label: 'Lost', value: lost, className: 'bg-status-lost' },
+    { key: 'won', label: t.dashboard.won, value: won, className: 'bg-status-won' },
+    { key: 'in_progress', label: t.dashboard.inProgress, value: inProgress, className: 'bg-status-in-progress' },
+    { key: 'new', label: t.dashboard.new, value: newDeals, className: 'bg-status-new' },
+    { key: 'lost', label: t.dashboard.lost, value: lost, className: 'bg-status-lost' },
   ]
 
   return (
     <div className="space-y-5">
       <div>
         <div className="flex items-baseline justify-between">
-          <p className="text-sm text-text-secondary">Win rate</p>
+          <p className="text-sm text-text-secondary">{t.dashboard.winRateLabel}</p>
           <p className="text-2xl font-semibold tabular-nums text-text-primary">{winRate}%</p>
         </div>
         <div
@@ -45,7 +46,7 @@ export const PipelineProgress = ({ won, lost, newDeals, inProgress, isLoading = 
           aria-valuenow={winRate}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="Win rate"
+          aria-label={t.dashboard.winRateLabel}
         >
           <div
             className="h-full rounded-full bg-status-won transition-all duration-500"
@@ -53,7 +54,8 @@ export const PipelineProgress = ({ won, lost, newDeals, inProgress, isLoading = 
           />
         </div>
         <p className="mt-2 text-xs text-text-secondary">
-          {won} won · {lost} lost{closed === 0 ? ' (no closed deals yet)' : ''}
+          {t.dashboard.wonAndLost(won, lost)}
+          {closed === 0 ? ` (${t.dashboard.noClosedDeals})` : ''}
         </p>
       </div>
 
