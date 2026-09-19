@@ -4,9 +4,17 @@ import { toast } from 'sonner'
 
 import { Pagination } from '@/components/common/pagination'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { getErrorMessage } from '@/lib/error-message'
 import { t } from '@/lib/i18n'
-import { canEditTask, isManagerialRole, useCurrentUserId, useRole } from '@/lib/permissions'
+import { canDeleteTask, canEditTask, isManagerialRole, useCurrentUserId, useRole } from '@/lib/permissions'
 import { useTasksParams } from '@/lib/use-tasks-params'
 import type { Task } from '@/types/api'
 
@@ -18,7 +26,7 @@ import { resolveAssigneeFilter } from '@/features/tasks/task-filter-values'
 import { TaskKanban } from '@/features/tasks/task-kanban'
 import { TaskList } from '@/features/tasks/task-list'
 import { TaskViewToggle } from '@/features/tasks/task-view-toggle'
-import { useTasks } from '@/features/tasks/tasks.queries'
+import { useDeleteTask, useTasks } from '@/features/tasks/tasks.queries'
 
 export const TasksPage = () => {
   const { view, limit, offset, status, assignedTo, dealId, setParams } = useTasksParams()
@@ -43,6 +51,9 @@ export const TasksPage = () => {
   const deals = dealsQuery.data?.items ?? []
   const [createOpen, setCreateOpen] = useState(false)
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null)
+  // The board has no table row to host a confirmation, so the page owns it.
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
+  const deleteMutation = useDeleteTask()
 
   useEffect(() => {
     if (isError) toast.error(getErrorMessage(error, t.tasks.loadFailed))
@@ -69,6 +80,19 @@ export const TasksPage = () => {
   }
 
   const canEdit = (task: Task) => canEditTask(role, userId, task)
+  const canDelete = (task: Task) => canDeleteTask(role, userId, task)
+
+  const handleDelete = async () => {
+    if (!taskToDelete) return
+    try {
+      await deleteMutation.mutateAsync(taskToDelete.id)
+      toast.success(t.tasks.deleted)
+    } catch (error) {
+      toast.error(getErrorMessage(error, t.tasks.deleteFailed))
+    } finally {
+      setTaskToDelete(null)
+    }
+  }
 
   const currentUserLabel = userEmail ?? t.tasks.form.otherAssignee
   const isPlainUser = !isManagerialRole(role)
@@ -126,10 +150,12 @@ export const TasksPage = () => {
           deals={deals}
           isLoading={isLoading || dealsQuery.isLoading}
           canEditTask={canEdit}
+          canDeleteTask={canDelete}
           canDrag={canChooseAssignee}
           currentUserId={userId ?? ''}
           currentUserLabel={currentUserLabel}
           onOpenTask={setTaskToEdit}
+          onDeleteTask={setTaskToDelete}
           emptyTitle={emptyTitle}
           emptyDescription={emptyDescription}
         />
@@ -188,6 +214,36 @@ export const TasksPage = () => {
           }}
         />
       )}
+
+      {/* Delete confirmation for the board; the list view keeps its own. */}
+      <Dialog open={taskToDelete !== null} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t.tasks.deleteConfirm.title}</DialogTitle>
+            <DialogDescription>
+              {t.tasks.deleteConfirm.description(taskToDelete?.title ?? '')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setTaskToDelete(null)}
+              disabled={deleteMutation.isPending}
+            >
+              {t.tasks.deleteConfirm.cancel}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                void handleDelete()
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? t.tasks.deleting : t.tasks.deleteConfirm.confirm}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

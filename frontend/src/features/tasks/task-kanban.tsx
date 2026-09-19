@@ -32,11 +32,15 @@ export type TaskKanbanProps = {
   isLoading: boolean
   /** Returns whether a given task may be edited/dragged by the current user. */
   canEditTask: (task: Task) => boolean
+  /** Returns whether a given task may be deleted by the current user. */
+  canDeleteTask: (task: Task) => boolean
   /** Whether any task may be dragged at all (managers and admins). */
   canDrag: boolean
   currentUserId: string
   currentUserLabel: string
   onOpenTask: (task: Task) => void
+  /** Opens the delete confirmation owned by the page. */
+  onDeleteTask: (task: Task) => void
   /** Shown in place of the generic empty text when the board has no tasks. */
   emptyTitle?: string
   emptyDescription?: string
@@ -80,10 +84,12 @@ export const TaskKanban = ({
   deals,
   isLoading,
   canEditTask,
+  canDeleteTask,
   canDrag,
   currentUserId,
   currentUserLabel,
   onOpenTask,
+  onDeleteTask,
   emptyTitle,
   emptyDescription,
 }: TaskKanbanProps) => {
@@ -190,10 +196,12 @@ export const TaskKanban = ({
                         task={task}
                         deals={deals}
                         canEdit={canEditTask(task)}
+                        canDelete={canDeleteTask(task)}
                         canDrag={canDrag}
                         currentUserId={currentUserId}
                         currentUserLabel={currentUserLabel}
                         onOpen={onOpenTask}
+                        onDelete={onDeleteTask}
                       />
                     ))}
                   </AnimatePresence>

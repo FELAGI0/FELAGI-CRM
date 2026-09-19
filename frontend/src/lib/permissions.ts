@@ -43,4 +43,10 @@ export const canEditTask = (role: Role | null, userId: string | null, task: Task
   return userId !== null && task.assigned_to === userId
 }
 
+/**
+ * Deletion follows the same ownership rule as editing on the API side, so this
+ * mirrors `canEditTask`. It is a separate export because the two could diverge.
+ */
+export const canDeleteTask = canEditTask
+
 export const canCreateTask = (): boolean => true
