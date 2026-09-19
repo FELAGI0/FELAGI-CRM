@@ -1,29 +1,35 @@
 # FELAGI CRM
 
-> **A production-minded backend foundation for a small-business CRM — built with FastAPI, async SQLAlchemy, PostgreSQL, and JWT authentication.**
+> **A production-minded CRM — a FastAPI, async SQLAlchemy, and PostgreSQL backend with a React and TypeScript frontend.**
 
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
-[![Tests](https://img.shields.io/badge/tests-141%20passed-success)](#-testing)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Backend tests](https://img.shields.io/badge/backend_tests-141%20passed-success)](#-testing)
+[![Frontend tests](https://img.shields.io/badge/frontend_tests-194%20passed-success)](#-frontend-testing)
 [![Coverage](https://img.shields.io/badge/coverage-81%25-success)](#-testing)
 
 ## ✨ Features
 
 - **CRM domain** — clients, deals, and tasks with relationships and lifecycle rules.
 - **Async REST API** — FastAPI with SQLAlchemy 2.0 async sessions and PostgreSQL 16.
+- **React SPA** — dashboard with charts, client and deal management, and a drag-and-drop task board.
 - **Pagination** — all list endpoints support `limit`/`offset` and return generic `Page[T]` responses.
-- **Filtering** — deals by `status`/`client_id`; tasks by `status`/`assigned_to`/`deal_id`.
-- **Role-based access control** — admin, manager, and user permissions across CRM resources.
+- **Filtering** — deals by `status`/`client_id`; tasks by `status`/`assigned_to`/`deal_id`; synced to URL query params so any view is shareable.
+- **Role-based access control** — admin, manager, and user permissions across CRM resources, enforced by the API and reflected in the UI.
 - **Health checks** — `GET /api/v1/health` verifies database connectivity.
-- **User authentication** — registration, login, refresh, and current-user endpoints.
+- **User authentication** — registration, login, refresh, and current-user endpoints, with an automatic token-refresh interceptor on the client.
 - **JWT token pairs** — signed access and refresh tokens with explicit `token_type` claims.
 - **Secure passwords** — Argon2 hashing through `pwdlib`.
 - **Rate limiting** — registration and login are limited to 5 requests per minute per IP.
 - **Request tracing** — every response carries an `X-Request-ID`; structured request logs are emitted with `structlog`.
-- **Database migrations** — Alembic manages the schema, starting with the `users` table.
-- **Tested backend** — 24 unit and integration tests, 82% coverage.
+- **Database migrations** — Alembic manages the schema.
+- **Tested on both sides** — 141 backend tests and 194 frontend tests.
 
 ## 🏗️ Architecture
 
@@ -100,6 +106,99 @@ sequenceDiagram
 | Tooling | [uv](https://docs.astral.sh/uv/), [Ruff](https://docs.astral.sh/ruff/), [mypy](https://www.mypy-lang.org/) |
 | Infrastructure | [Docker](https://www.docker.com/) and Docker Compose |
 
+## 💻 Frontend
+
+A single-page application that consumes the API: an authenticated dashboard, full client and deal management, and a task board with drag-and-drop. See [frontend/README.md](frontend/README.md) for setup details.
+
+### Frontend stack
+
+| Area | Technology |
+| --- | --- |
+| Language | [TypeScript 5.9](https://www.typescriptlang.org/) (strict, no `any`) |
+| UI library | [React 19](https://react.dev/) |
+| Build tool | [Vite 8](https://vite.dev/) |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com/) with design tokens in `src/index.css` |
+| Components | [shadcn/ui](https://ui.shadcn.com/) on [Base UI](https://base-ui.com/) |
+| Routing | [React Router 7](https://reactrouter.com/) with lazy-loaded routes |
+| Server state | [TanStack Query 5](https://tanstack.com/query) |
+| Client state | [Zustand 5](https://zustand.docs.pmnd.rs/) with `persist` for auth and settings |
+| HTTP | [Axios](https://axios-http.com/) with auth and refresh interceptors |
+| Forms | [React Hook Form](https://react-hook-form.com/) and [Zod 4](https://zod.dev/) |
+| Charts | [Recharts 3](https://recharts.org/) |
+| Drag and drop | [dnd-kit](https://dndkit.com/) with pointer and keyboard sensors |
+| Animation | [Framer Motion](https://motion.dev/) |
+| Notifications | [Sonner](https://sonner.emilkowal.ski/) |
+| Dates | [date-fns 4](https://date-fns.org/) with the `ru` locale |
+| Testing | [Vitest 5](https://vitest.dev/) and [Testing Library](https://testing-library.com/) |
+
+### Screens
+
+| Task board (kanban) | Task list |
+| --- | --- |
+| ![Task board](docs/screenshots/tasks-kanban.png) | ![Task list](docs/screenshots/tasks-list.png) |
+
+| Dashboard | Deals |
+| --- | --- |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Deals](docs/screenshots/deals.png) |
+
+| Clients | Drag and drop |
+| --- | --- |
+| ![Clients](docs/screenshots/clients.png) | ![Dragging a card](docs/screenshots/task-drag.png) |
+
+| New task | Settings and currency |
+| --- | --- |
+| ![Task dialog](docs/screenshots/task-dialog.png) | ![Settings](docs/screenshots/settings.png) |
+
+### Frontend quick start
+
+The backend must be running first (`docker compose up`).
+
+```text
+cd frontend
+npm install
+npm run dev
+```
+
+Open <http://localhost:3000>. Vite proxies `/api` to `http://localhost:8000`, so no CORS setup is needed locally.
+
+### Frontend commands
+
+```text
+npm run dev         # development server on port 3000
+npm run build       # type-check and production build
+npm run preview     # serve the production build
+npm run typecheck   # tsc -b --noEmit
+npm run lint        # eslint
+npm run test        # vitest run
+```
+
+### Frontend notes
+
+- **UI language is Russian.** All user-facing text lives in `src/lib/i18n.ts`; identifiers, comments, and API field values stay in English.
+- **Collection endpoints need a trailing slash** (`/clients/`, not `/clients`). The bare path returns a 307 redirect that drops the `Authorization` header.
+- **Money is handled as a string end to end.** The API serialises `Decimal` as a string, and it is never parsed into a JavaScript number, which would lose precision. The display currency is configurable in Settings (₽ / $ / €) and persisted in `localStorage`.
+- **The bundle is code-split.** Each route is a lazy chunk, so Recharts ships only with the dashboard. The entry bundle is ~297 kB (96 kB gzip).
+- **Kanban drag and drop supports the keyboard.** Focus a card's handle and use Space to pick up, arrow keys to move between columns, and Space to drop.
+
+<a id="-frontend-testing"></a>
+
+### Frontend testing
+
+```text
+cd frontend
+npm run test
+```
+
+| Suite | Coverage |
+| --- | --- |
+| Schemas | Zod validation for auth, clients, deals, and tasks, including payload conversion |
+| Queries | API client calls, query-string construction, cache invalidation, and optimistic updates |
+| Dates and formatting | Russian date, relative-time, deadline-state, amount, and currency formatting |
+| Stores | Auth and settings persistence in `localStorage` |
+| Permissions | Role checks and per-task ownership rules |
+
+The frontend suite has **194 passing tests** across 15 files.
+
 ## 📁 Project Structure
 
 ```text
@@ -121,6 +220,16 @@ tests/
 ├── unit/                   # Password and JWT helper tests
 ├── integration/            # Auth API tests against Testcontainers PostgreSQL
 └── conftest.py             # Database, app, client, and cleanup fixtures
+
+frontend/
+├── src/
+│   ├── app/                # Router with lazy-loaded routes
+│   ├── components/         # Layout, shared UI primitives, and common widgets
+│   ├── features/           # auth, dashboard, clients, deals, tasks, settings
+│   ├── lib/                # API client, i18n dictionary, formatters, permissions
+│   ├── pages/              # Route-level screens
+│   └── types/              # API types mirroring the backend schemas
+└── tests/                  # Vitest suites and shared factories
 ```
 
 ## 🚀 Quick Start
@@ -370,7 +479,7 @@ Router dependencies enforce broad role permissions for Clients and Deals. Task o
 - [x] **Stage 1 — Skeleton**
 - [x] **Stage 2 — Users / Auth**
 - [x] **Stage 3 — CRM Domain (clients, deals, tasks, RBAC)**
-- [ ] **Stage 4 — Frontend**
+- [x] **Stage 4 — Frontend (auth, dashboard, clients, deals, tasks, i18n)**
 - [ ] **Stage 5 — Deploy**
 - [ ] **Stage 6 — Polish**
 

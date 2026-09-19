@@ -160,6 +160,8 @@ export const t = {
     passwordUpper: 'Нужна заглавная буква',
     passwordDigit: 'Нужна цифра',
     amountFormat: 'Введите число (макс. 2 знака после запятой)',
+    dateFormat: 'Введите корректную дату',
+    uuid: 'Некорректный идентификатор',
   },
   notifications: {
     empty: 'Уведомлений нет',
@@ -279,9 +281,109 @@ export const t = {
     filterByClient: 'Фильтр по клиенту',
   },
   tasks: {
+    title: 'Задачи',
+    total: (n: number) => {
+      const mod10 = n % 10
+      const mod100 = n % 100
+      if (mod10 === 1 && mod100 !== 11) return `${n} задача`
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} задачи`
+      return `${n} задач`
+    },
+    totalLabel: (n: number) => {
+      const mod10 = n % 10
+      const mod100 = n % 100
+      if (mod10 === 1 && mod100 !== 11) return `${n} задача всего`
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} задачи всего`
+      return `${n} задач всего`
+    },
+    addTask: 'Добавить задачу',
+    editTask: 'Редактирование задачи',
+    createTask: 'Новая задача',
+    editSubtitle: 'Обновите данные задачи ниже.',
+    createSubtitle: 'Создайте новую задачу.',
+    columns: {
+      title: 'Название',
+      status: 'Статус',
+      dueDate: 'Срок',
+      assignee: 'Исполнитель',
+      deal: 'Сделка',
+      created: 'Создан',
+    },
+    form: {
+      title: 'Название',
+      titlePlaceholder: 'Подготовить коммерческое предложение',
+      description: 'Описание',
+      descriptionPlaceholder: 'Дополнительная информация о задаче',
+      status: 'Статус',
+      dueDate: 'Срок',
+      deal: 'Сделка',
+      assignee: 'Исполнитель',
+      selectDeal: 'Выберите сделку',
+      selectAssignee: 'Выберите исполнителя',
+      selectStatus: 'Выберите статус',
+      noDeal: 'Без сделки',
+      unassigned: 'Не назначен',
+      /** Shown when a task is assigned to somebody other than the current user. */
+      otherAssignee: 'Другой исполнитель',
+      saving: 'Сохранение…',
+      saveChanges: 'Сохранить',
+    },
+    view: {
+      kanban: 'Канбан',
+      list: 'Список',
+      label: 'Вид',
+    },
+    filters: {
+      status: 'Статус',
+      assignee: 'Исполнитель',
+      deal: 'Сделка',
+      allAssignees: 'Все исполнители',
+      allDeals: 'Все сделки',
+      unassigned: 'Не назначены',
+      mine: 'Мои задачи',
+      all: 'Все',
+      filterByStatus: 'Фильтр по статусу',
+      filterByAssignee: 'Фильтр по исполнителю',
+      filterByDeal: 'Фильтр по сделке',
+    },
     empty: {
       title: 'Пока нет задач',
+      description: 'Начните с добавления первой задачи',
     },
+    /** Shown to a regular user with nothing assigned to them. */
+    noOwnTasks: {
+      title: 'У вас нет задач',
+      description: 'Задачи, назначенные на вас, появятся здесь',
+    },
+    noMatches: {
+      title: 'Ничего не найдено',
+      description: 'Попробуйте изменить или сбросить фильтры',
+    },
+    deleteConfirm: {
+      title: 'Удалить задачу?',
+      description: (name: string) => `Вы уверены, что хотите удалить «${name}»? Это действие нельзя отменить.`,
+      confirm: 'Удалить',
+      cancel: 'Отмена',
+    },
+    created: 'Задача создана',
+    updated: 'Задача обновлена',
+    deleted: 'Задача удалена',
+    statusUpdated: 'Статус обновлён',
+    statusUpdateFailed: 'Не удалось изменить статус',
+    createFailed: 'Не удалось создать задачу',
+    updateFailed: 'Не удалось обновить задачу',
+    deleteFailed: 'Не удалось удалить задачу',
+    loadFailed: 'Не удалось загрузить задачи',
+    loadFailedHint: 'Не удалось загрузить список задач. Проверьте, что API запущен, и попробуйте снова.',
+    deleting: 'Удаление…',
+    columnEmpty: 'Нет задач',
+    overdue: 'Просрочено',
+    dueToday: 'Сегодня',
+    dueTomorrow: 'Завтра',
+    dragHandle: 'Перетащите, чтобы изменить статус',
+    unknownDeal: 'Сделка удалена',
+    /** Explains the MVP limitation: there is no user directory endpoint yet. */
+    assigneeSelfOnly: 'Доступно только назначение на себя',
   },
   errors: {
     generic: 'Что-то пошло не так. Попробуйте ещё раз.',

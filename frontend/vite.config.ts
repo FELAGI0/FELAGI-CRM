@@ -11,7 +11,7 @@ export default defineConfig({
   build: {
     rolldownOptions: {
       output: {
-        advancedChunks: {
+        codeSplitting: {
           groups: [
             {
               // React only. Deliberately no catch-all node_modules group: that

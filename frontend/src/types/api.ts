@@ -68,12 +68,26 @@ export interface Task {
   description: string | null
   status: TaskStatus
   due_date: string | null
+  /** The API declares this non-nullable, and every task currently carries one. */
   deal_id: string | null
   assigned_to: string | null
   created_by: string
   created_at: string
   updated_at: string
 }
+
+export interface TaskCreate {
+  title: string
+  description?: string | null
+  status?: TaskStatus
+  /** Must be a timezone-aware ISO datetime; a bare date is rejected with 422. */
+  due_date?: string | null
+  /** Required by the API despite being typed nullable in the response. */
+  deal_id: string
+  assigned_to?: string | null
+}
+
+export type TaskUpdate = Partial<Omit<TaskCreate, 'deal_id'>> & { deal_id?: string | null }
 
 export interface Page<T> {
   items: T[]
