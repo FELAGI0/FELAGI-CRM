@@ -12,16 +12,44 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Backend tests](https://img.shields.io/badge/backend_tests-141%20passed-success)](#-testing)
 [![Frontend tests](https://img.shields.io/badge/frontend_tests-194%20passed-success)](#-frontend-testing)
+[![Tests](https://img.shields.io/badge/tests-335%20passed-success)](#-testing)
 [![Coverage](https://img.shields.io/badge/coverage-81%25-success)](#-testing)
+[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://felagi-crm.vercel.app)
+
+## 🔗 Live Demo
+
+| Service | URL |
+| --- | --- |
+| **Frontend** | <https://felagi-crm.vercel.app> |
+| **Backend API** | <https://felagi-crm.onrender.com> |
+| **Swagger UI** | <https://felagi-crm.onrender.com/docs> |
+| **ReDoc** | <https://felagi-crm.onrender.com/redoc> |
+| **Health check** | <https://felagi-crm.onrender.com/api/v1/health> |
+
+### Demo accounts
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@example.com` | `StrongPassword123` |
+| Manager | `manager@example.com` | `StrongPassword123` |
+| User | `user@example.com` | `StrongPassword123` |
+
+**RBAC demo** — log in as `user@example.com` and try to create a client. The button is not rendered, and the API answers `403` if the request is sent anyway. Switch to `admin@example.com` to see the full UI, including editing and deleting other people's tasks.
+
+> **Note:** the backend runs on Render's free tier. A keep-alive ping keeps it warm, but the first request after a long idle period can take 30–60 seconds. The deployed instance is seeded with the same dataset as local development (7 clients, 18 deals, 12 tasks), produced by [`frontend/scripts/seed.mjs`](frontend/scripts/seed.mjs). For a visual tour without signing in, see [Frontend → Screens](#screens) or the [`docs/screenshots/`](docs/screenshots) directory.
 
 ## ✨ Features
 
 - **CRM domain** — clients, deals, and tasks with relationships and lifecycle rules.
 - **Async REST API** — FastAPI with SQLAlchemy 2.0 async sessions and PostgreSQL 16.
 - **React SPA** — dashboard with charts, client and deal management, and a drag-and-drop task board.
+- **Tasks in two views** — a Kanban board with drag-and-drop across columns, and a paginated list view with per-row actions.
+- **Keyboard-accessible drag and drop** — focus a card's handle and use Space, arrow keys, and Space to move it between columns.
 - **Pagination** — all list endpoints support `limit`/`offset` and return generic `Page[T]` responses.
 - **Filtering** — deals by `status`/`client_id`; tasks by `status`/`assigned_to`/`deal_id`; synced to URL query params so any view is shareable.
 - **Role-based access control** — admin, manager, and user permissions across CRM resources, enforced by the API and reflected in the UI.
+- **Russian UI** — every user-facing string is localized, including plural forms («1 задача / 2 задачи / 5 задач») and a `ru` date locale.
+- **Currency switcher** — RUB, USD, and EUR, persisted per browser.
 - **Health checks** — `GET /api/v1/health` verifies database connectivity.
 - **User authentication** — registration, login, refresh, and current-user endpoints, with an automatic token-refresh interceptor on the client.
 - **JWT token pairs** — signed access and refresh tokens with explicit `token_type` claims.
@@ -29,7 +57,8 @@
 - **Rate limiting** — registration and login are limited to 5 requests per minute per IP.
 - **Request tracing** — every response carries an `X-Request-ID`; structured request logs are emitted with `structlog`.
 - **Database migrations** — Alembic manages the schema.
-- **Tested on both sides** — 141 backend tests and 194 frontend tests.
+- **Code-split bundle** — each route is a lazy chunk and Recharts ships only with the dashboard. The entry bundle is ~297 kB (96 kB gzip).
+- **Tested on both sides** — 141 backend tests and 194 frontend tests, 335 in total.
 
 ## 🏗️ Architecture
 
@@ -104,7 +133,11 @@ sequenceDiagram
 | Logging | [structlog](https://www.structlog.org/) |
 | Testing | [pytest](https://docs.pytest.org/), [pytest-asyncio](https://pytest-asyncio.readthedocs.io/), [Testcontainers](https://testcontainers.com/), [httpx](https://www.python-httpx.org/) |
 | Tooling | [uv](https://docs.astral.sh/uv/), [Ruff](https://docs.astral.sh/ruff/), [mypy](https://www.mypy-lang.org/) |
-| Infrastructure | [Docker](https://www.docker.com/) and Docker Compose |
+| Local infrastructure | [Docker](https://www.docker.com/) and Docker Compose |
+| Hosting (frontend) | [Vercel](https://vercel.com/) — <https://felagi-crm.vercel.app> |
+| Hosting (backend) | [Render](https://render.com/) — <https://felagi-crm.onrender.com> |
+| Database (production) | [Neon](https://neon.tech/) serverless PostgreSQL |
+| Keep-alive | [cron-job.org](https://cron-job.org/) pings `/api/v1/health` every 15 minutes |
 
 ## 💻 Frontend
 
@@ -416,12 +449,24 @@ uv run python -m pytest tests/ -q
 
 Integration tests use `Testcontainers` to run real PostgreSQL 16 and `httpx.AsyncClient` to exercise the ASGI application. The current suite has **141 passing tests** and **81% coverage** through `pytest-cov`. RBAC matrix tests cover admin, manager, and user permissions.
 
+The frontend adds **194 passing tests** across 15 Vitest files (see [Frontend testing](#-frontend-testing)), bringing the project total to **335 tests**.
+
 Additional quality checks:
 
 ```text
 uv run python -m ruff check .
 uv run python -m ruff format --check .
 uv run python -m mypy app
+```
+
+For the frontend:
+
+```text
+cd frontend
+npm run typecheck
+npm run lint
+npm run test
+npm run build
 ```
 
 ## 🧠 Design Decisions
@@ -479,9 +524,9 @@ Router dependencies enforce broad role permissions for Clients and Deals. Task o
 - [x] **Stage 1 — Skeleton**
 - [x] **Stage 2 — Users / Auth**
 - [x] **Stage 3 — CRM Domain (clients, deals, tasks, RBAC)**
-- [x] **Stage 4 — Frontend (auth, dashboard, clients, deals, tasks, i18n)**
-- [ ] **Stage 5 — Deploy**
-- [ ] **Stage 6 — Polish**
+- [x] **Stage 4 — Frontend (auth, dashboard, clients, deals, tasks, Kanban, RBAC, i18n)**
+- [x] **Stage 5 — Deploy (Vercel + Render + Neon)**
+- [ ] **Stage 6 — Polish (monitoring, additional features)**
 
 ## 🌍 Environment Variables
 
