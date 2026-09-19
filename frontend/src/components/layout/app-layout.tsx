@@ -2,8 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { PageTransition } from '@/components/common/page-transition'
+import { SearchModal } from '@/components/search/search-modal'
 import { t } from '@/lib/i18n'
+import { useHotkey } from '@/lib/use-hotkey'
 import { useIsDesktopNav } from '@/lib/use-media-query'
+import { useSearchStore } from '@/features/search/search.store'
 
 import { Header } from './header'
 import { Sidebar, SidebarDrawer } from './sidebar'
@@ -12,6 +15,12 @@ export const AppLayout = () => {
   const location = useLocation()
   const isDesktopNav = useIsDesktopNav()
   const [navOpen, setNavOpen] = useState(false)
+
+  const searchOpen = useSearchStore((state) => state.isOpen)
+  const toggleSearch = useSearchStore((state) => state.toggle)
+
+  // ⌘K on macOS, Ctrl+K elsewhere. Escape is handled by the dialog itself.
+  useHotkey({ key: 'k', modifier: true, handler: toggleSearch })
 
   const openNav = useCallback(() => setNavOpen(true), [])
   const closeNav = useCallback(() => {
@@ -47,6 +56,7 @@ export const AppLayout = () => {
           </PageTransition>
         </main>
       </div>
+      {searchOpen && <SearchModal />}
     </div>
   )
 }

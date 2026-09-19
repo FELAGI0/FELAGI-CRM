@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { setTheme, type Theme } from '@/lib/theme'
 import { t } from '@/lib/i18n'
+import { useSearchStore } from '@/features/search/search.store'
 
 export type HeaderProps = {
   /** Opens the mobile navigation drawer; the button is hidden from md upwards. */
@@ -14,6 +15,7 @@ export type HeaderProps = {
 export const Header = ({ onOpenNav, navOpen = false }: HeaderProps) => {
   const [theme, setCurrentTheme] = useState<Theme>(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const openSearch = useSearchStore((state) => state.open)
 
   const handleThemeToggle = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light'
@@ -34,9 +36,15 @@ export const Header = ({ onOpenNav, navOpen = false }: HeaderProps) => {
         >
           <Menu size={20} />
         </button>
-        <button className="flex items-center gap-2 rounded-control border border-border px-3 py-2 text-sm text-text-secondary" aria-label={t.header.openSearch}>
+        <button
+          type="button"
+          onClick={openSearch}
+          className="flex items-center gap-2 rounded-control border border-border px-3 py-2 text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+          aria-label={t.header.openSearch}
+        >
           <Search size={16} />
-          <span className="hidden sm:inline">{t.common.search}</span> <kbd className="hidden text-xs sm:inline">Ctrl K</kbd>
+          <span className="hidden sm:inline">{t.common.search}</span>
+          <kbd className="hidden text-xs sm:inline">{t.search.shortcut}</kbd>
         </button>
       </div>
       <div className="flex items-center gap-2">
