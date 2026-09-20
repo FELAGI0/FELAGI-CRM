@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { LoadingScreen } from '@/components/loading-screen'
+import { DocumentTitle } from '@/components/common/document-title'
 import { AppLayout } from '@/components/layout/app-layout'
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { AuthGuard, GuestGuard, RoleGuard } from '@/features/auth/auth-guard'
@@ -29,6 +30,9 @@ const NotFoundPage = lazy(() =>
 
 export const AppRouter = () => (
   <BrowserRouter>
+    {/* Above the routes so the tab title updates on every navigation,
+        including the sign-in pages that render outside AppLayout. */}
+    <DocumentTitle />
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
         <Route element={<GuestGuard />}>
