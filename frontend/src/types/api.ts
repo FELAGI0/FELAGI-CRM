@@ -5,6 +5,8 @@ export type TaskStatus = 'todo' | 'in_progress' | 'done'
 export interface User {
   id: string
   email: string
+  /** Optional display name; accounts created before the column existed have none. */
+  name: string | null
   role: Role
   is_active: boolean
   created_at: string
@@ -101,6 +103,14 @@ export interface UserAdminCreate {
  * `role` and `is_active` are never sent as null.
  */
 export type UserAdminUpdate = Partial<{ role: Role; is_active: boolean }>
+
+/** Self-service profile update. The API rejects a payload with no fields. */
+export type UserUpdateMe = Partial<{ name: string; email: string }>
+
+export interface ChangePasswordRequest {
+  current_password: string
+  new_password: string
+}
 
 export interface Page<T> {
   items: T[]

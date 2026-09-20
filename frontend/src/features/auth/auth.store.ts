@@ -12,6 +12,8 @@ type AuthState = {
   isAuthenticated: boolean
   isRestoring: boolean
   setSession: (user: User, accessToken: string, refreshToken: string) => void
+  /** Replaces the cached user without touching tokens, for profile updates. */
+  setUser: (user: User) => void
   clearSession: () => void
   updateAccessToken: (accessToken: string) => void
   updateTokens: (accessToken: string, refreshToken: string) => void
@@ -36,6 +38,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       ...initialState,
       setSession: (user, accessToken, refreshToken) => set({ user, accessToken, refreshToken, isAuthenticated: true }),
+      setUser: (user) => set({ user }),
       clearSession: () => set({ ...initialState }),
       updateAccessToken: (accessToken) => set({ accessToken }),
       updateTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),

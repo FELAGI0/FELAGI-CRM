@@ -15,10 +15,12 @@ from app.modules.deals.model import Deal
 from app.modules.tasks.model import Task
 from app.modules.users.model import User
 from app.modules.users.schemas import (
+    ChangePasswordRequest,
     UserAdminCreate,
     UserAdminUpdate,
     UserCreate,
     UserLogin,
+    UserUpdateMe,
 )
 
 
@@ -135,6 +137,50 @@ async def get_user_by_email(session: AsyncSession, email: str) -> User:
     if user is None:
         raise NotFoundError("User not found")
     return user
+
+
+async def update_me(
+    session: AsyncSession,
+    payload: UserUpdateMe,
+    current_user: User,
+) -> User:
+    """
+    Update the caller's own display name and email.
+
+    Email is the account identifier, so a change is rejected when another
+    account already holds it. The check is needed here as well as on the unique
+    index, because that index would raise an opaque integrity error.
+    """
+    if payload.email is not None and payload.email.lower() != current_user.email:
+        existing = await _get_user_by_email_or_none(session, payload.email)
+        if existing is not None:
+            raise ConflictError("Email already registered")
+        current_user.email = payload.email.lower()
+
+    if payload.name is not None:
+        current_user.name = payload.name
+
+    await session.commit()
+    await session.refresh(current_user)
+    return current_user
+
+
+async def change_password(
+    session: AsyncSession,
+    payload: ChangePasswordRequest,
+    current_user: User,
+) -> None:
+    """
+    Change the caller's password after verifying the current one.
+
+    A wrong current password is an authentication failure rather than a
+    validation error: the caller could not prove ownership of the account.
+    """
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise AuthenticationError("Invalid current password")
+
+    current_user.hashed_password = hash_password(payload.new_password)
+    await session.commit()
 
 
 async def get_user_by_id(session: AsyncSession, user_id: UUID) -> User:

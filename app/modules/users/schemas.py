@@ -69,11 +69,52 @@ class UserAdminUpdate(BaseModel):
 class UserRead(BaseModel):
     id: UUID
     email: EmailStr
+    name: str | None = None
     role: Literal["admin", "manager", "user"]
     is_active: bool
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserUpdateMe(BaseModel):
+    """Self-service profile update. At least one field must be present."""
+
+    name: str | None = None
+    email: EmailStr | None = None
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: EmailStr | None) -> str | None:
+        return value.lower() if value is not None else None
+
+    @field_validator("name")
+    @classmethod
+    def strip_name(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("Name must not be empty")
+        if len(stripped) > 255:
+            raise ValueError("Name must be at most 255 characters")
+        return stripped
+
+    @model_validator(mode="after")
+    def require_at_least_one_field(self) -> "UserUpdateMe":
+        if self.name is None and self.email is None:
+            raise ValueError("At least one of name or email must be provided")
+        return self
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, value: str) -> str:
+        return _validate_password(value)
 
 
 class UserLogin(BaseModel):

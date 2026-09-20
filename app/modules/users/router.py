@@ -17,6 +17,7 @@ from app.core.security import (
 from app.db.session import get_db_session
 from app.modules.users.model import User
 from app.modules.users.schemas import (
+    ChangePasswordRequest,
     RefreshRequest,
     TokenPair,
     UserAdminCreate,
@@ -24,14 +25,17 @@ from app.modules.users.schemas import (
     UserCreate,
     UserLogin,
     UserRead,
+    UserUpdateMe,
 )
 from app.modules.users.service import (
     authenticate_user,
+    change_password,
     create_user,
     create_user_admin,
     delete_user_admin,
     get_user_by_id,
     list_users,
+    update_me,
     update_user_admin,
 )
 
@@ -100,6 +104,26 @@ async def refresh(
 @users_router.get("/me", response_model=UserRead)
 async def get_me(current_user: User = Depends(get_current_user)) -> UserRead:
     return UserRead.model_validate(current_user)
+
+
+@users_router.patch("/me", response_model=UserRead)
+async def update_own_profile(
+    payload: UserUpdateMe,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> UserRead:
+    user = await update_me(session, payload, current_user)
+    return UserRead.model_validate(user)
+
+
+@users_router.post("/me/change-password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_own_password(
+    payload: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> Response:
+    await change_password(session, payload, current_user)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @users_admin_router.get("/", response_model=Page[UserRead])
