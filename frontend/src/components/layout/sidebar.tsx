@@ -1,8 +1,9 @@
-﻿import { BriefcaseBusiness, CheckSquare, LayoutDashboard, Settings, Users, X } from 'lucide-react'
+import { BriefcaseBusiness, CheckSquare, LayoutDashboard, Settings, UserCog, Users, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 
+import { useAuthStore } from '@/features/auth/auth.store'
 import { cn } from '@/lib/utils'
 import { t } from '@/lib/i18n'
 
@@ -14,30 +15,38 @@ const links = [
   { to: '/settings', label: t.nav.settings, icon: Settings },
 ]
 
+/** Shown only to administrators, matching the route guard and the API. */
+const adminLinks = [{ to: '/users', label: t.nav.users, icon: UserCog }]
+
 const Brand = () => <div className="mb-8 text-lg font-semibold text-text-primary">FELAGI CRM</div>
 
-const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
-  <nav className="space-y-1" aria-label={t.nav.mainNavigation}>
-    {links.map(({ to, label, icon: Icon }) => (
-      <NavLink
-        key={to}
-        to={to}
-        onClick={onNavigate}
-        className={({ isActive }) =>
-          cn(
-            'flex items-center gap-3 rounded-control px-3 py-2 text-sm',
-            isActive
-              ? 'bg-accent text-accent-foreground'
-              : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
-          )
-        }
-      >
-        <Icon size={18} />
-        {label}
-      </NavLink>
-    ))}
-  </nav>
-)
+const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => {
+  const role = useAuthStore((state) => state.user?.role ?? null)
+  const visible = role === 'admin' ? [...links, ...adminLinks] : links
+
+  return (
+    <nav className="space-y-1" aria-label={t.nav.mainNavigation}>
+      {visible.map(({ to, label, icon: Icon }) => (
+        <NavLink
+          key={to}
+          to={to}
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 rounded-control px-3 py-2 text-sm',
+              isActive
+                ? 'bg-accent text-accent-foreground'
+                : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+            )
+          }
+        >
+          <Icon size={18} />
+          {label}
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
 
 /** Static sidebar, shown from md (768px) upwards. */
 export const Sidebar = () => (

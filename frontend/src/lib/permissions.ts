@@ -50,3 +50,20 @@ export const canEditTask = (role: Role | null, userId: string | null, task: Task
 export const canDeleteTask = canEditTask
 
 export const canCreateTask = (): boolean => true
+
+/**
+ * User management is admin-only on the API as well: every route under
+ * `/users/` is mounted behind `require_role("admin")`, so there is no
+ * manager-level view to expose here.
+ */
+export const canReadUsers = (role: Role | null): boolean => role === 'admin'
+
+export const canManageUsers = (role: Role | null): boolean => role === 'admin'
+
+export type UserAction = 'read' | 'manage'
+
+/** Single entry point for user-management checks, mirroring the API's rules. */
+export const useCanManageUsers = (action: UserAction = 'manage'): boolean => {
+  const role = useRole()
+  return action === 'read' ? canReadUsers(role) : canManageUsers(role)
+}

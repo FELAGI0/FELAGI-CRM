@@ -8,6 +8,7 @@ export const t = {
     clients: 'Клиенты',
     deals: 'Сделки',
     tasks: 'Задачи',
+    users: 'Пользователи',
     settings: 'Настройки',
     mainNavigation: 'Основная навигация',
   },
@@ -221,6 +222,81 @@ export const t = {
   notFound: {
     title: 'Страница не найдена',
     backToDashboard: 'Вернуться на дашборд',
+  },
+  users: {
+    title: 'Пользователи',
+    total: (n: number) => {
+      const mod10 = n % 10
+      const mod100 = n % 100
+      if (mod10 === 1 && mod100 !== 11) return `${n} пользователь`
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} пользователя`
+      return `${n} пользователей`
+    },
+    totalLabel: (n: number) => {
+      const mod10 = n % 10
+      const mod100 = n % 100
+      if (mod10 === 1 && mod100 !== 11) return `${n} пользователь всего`
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} пользователя всего`
+      return `${n} пользователей всего`
+    },
+    addUser: 'Добавить пользователя',
+    editUser: 'Редактирование пользователя',
+    createUser: 'Новый пользователь',
+    createSubtitle: 'Создайте учётную запись и выберите роль.',
+    editSubtitle: 'Измените роль или заблокируйте доступ.',
+    columns: {
+      email: 'Email',
+      role: 'Роль',
+      status: 'Статус',
+      created: 'Создан',
+      actions: 'Действия',
+    },
+    form: {
+      email: 'Email',
+      emailPlaceholder: 'user@example.com',
+      password: 'Пароль',
+      passwordPlaceholder: 'Минимум 12 символов',
+      passwordHint: 'Строчная и заглавная буквы и хотя бы одна цифра.',
+      role: 'Роль',
+      isActive: 'Активен',
+      isActiveHint: 'Заблокированный пользователь не сможет войти.',
+      selectRole: 'Выберите роль',
+      saving: 'Сохранение…',
+      saveChanges: 'Сохранить',
+    },
+    roles: {
+      admin: 'Администратор',
+      manager: 'Менеджер',
+      user: 'Пользователь',
+    },
+    status: {
+      active: 'Активен',
+      inactive: 'Заблокирован',
+      you: 'Это вы',
+    },
+    empty: 'Пользователей нет',
+    emptyDescription: 'Добавьте первого пользователя, чтобы дать коллеге доступ.',
+    noMatches: 'Ничего не найдено',
+    created: 'Пользователь создан',
+    updated: 'Пользователь обновлён',
+    deleted: 'Пользователь удалён',
+    createdFailed: 'Не удалось создать пользователя',
+    updateFailed: 'Не удалось обновить пользователя',
+    deleteFailed: 'Не удалось удалить пользователя',
+    loadFailed: 'Не удалось загрузить пользователей',
+    loadFailedHint: 'Проверьте соединение и обновите страницу.',
+    deleting: 'Удаление…',
+    deleteConfirm: {
+      title: 'Удалить пользователя?',
+      description: (email: string) =>
+        `Вы уверены, что хотите удалить «${email}»? Это действие нельзя отменить.`,
+      cancel: 'Отмена',
+      confirm: 'Удалить',
+    },
+    selfDeleteBlocked: 'Нельзя удалить собственную учётную запись.',
+    selfEditBlocked: 'Нельзя менять свою роль или блокировать себя.',
+    relatedRecordsBlocked: 'У пользователя есть связанные записи, поэтому удалить его нельзя.',
+    hint: 'Управлять пользователями может только администратор.',
   },
   deals: {
     title: 'Сделки',

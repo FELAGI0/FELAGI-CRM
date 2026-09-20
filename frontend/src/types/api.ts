@@ -89,6 +89,19 @@ export interface TaskCreate {
 
 export type TaskUpdate = Partial<Omit<TaskCreate, 'deal_id'>> & { deal_id?: string | null }
 
+/** Administrator-created account, which may carry an explicit role. */
+export interface UserAdminCreate {
+  email: string
+  password: string
+  role: Role
+}
+
+/**
+ * The API rejects an empty payload, so at least one field must be present.
+ * `role` and `is_active` are never sent as null.
+ */
+export type UserAdminUpdate = Partial<{ role: Role; is_active: boolean }>
+
 export interface Page<T> {
   items: T[]
   total: number

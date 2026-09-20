@@ -4,7 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { LoadingScreen } from '@/components/loading-screen'
 import { AppLayout } from '@/components/layout/app-layout'
 import { AuthLayout } from '@/components/layout/auth-layout'
-import { AuthGuard, GuestGuard } from '@/features/auth/auth-guard'
+import { AuthGuard, GuestGuard, RoleGuard } from '@/features/auth/auth-guard'
 
 /**
  * Pages are split into their own chunks so the initial bundle stays small.
@@ -19,6 +19,7 @@ const DashboardPage = lazy(() =>
 const ClientsPage = lazy(() => import('@/pages/clients-page').then((m) => ({ default: m.ClientsPage })))
 const DealsPage = lazy(() => import('@/pages/deals-page').then((m) => ({ default: m.DealsPage })))
 const TasksPage = lazy(() => import('@/pages/tasks-page').then((m) => ({ default: m.TasksPage })))
+const UsersPage = lazy(() => import('@/pages/users-page').then((m) => ({ default: m.UsersPage })))
 const SettingsPage = lazy(() =>
   import('@/pages/settings-page').then((m) => ({ default: m.SettingsPage })),
 )
@@ -44,6 +45,10 @@ export const AppRouter = () => (
             <Route path="/deals" element={<DealsPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            {/* Administration-only; anyone else is redirected to the dashboard. */}
+            <Route element={<RoleGuard role="admin" />}>
+              <Route path="/users" element={<UsersPage />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />

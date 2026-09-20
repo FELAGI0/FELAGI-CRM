@@ -17,6 +17,7 @@ describe('dictionary', () => {
       clients: 'Клиенты',
       deals: 'Сделки',
       tasks: 'Задачи',
+      users: 'Пользователи',
       settings: 'Настройки',
       mainNavigation: 'Основная навигация',
     })
